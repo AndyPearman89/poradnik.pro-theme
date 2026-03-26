@@ -19,20 +19,22 @@ add_action('after_setup_theme', static function (): void {
 });
 
 add_action('wp_enqueue_scripts', static function (): void {
-    wp_enqueue_style('gp-parent-style', get_template_directory_uri() . '/style.css', [], wp_get_theme('generatepress')->get('Version'));
-    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], '1.3.0');
-    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], '1.3.0');
-    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], '1.3.0');
-    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.3.0');
-    wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], '1.3.0');
-    wp_enqueue_style('poradnik-portal-pro', get_stylesheet_directory_uri() . '/assets/css/portal-pro.css', ['poradnik-premium'], '1.3.0');
-    wp_enqueue_style('poradnik-cpt-enterprise', get_stylesheet_directory_uri() . '/assets/css/cpt-enterprise.css', ['poradnik-portal-pro'], '1.3.0');
+    $themeVersion = wp_get_theme(get_stylesheet())->get('Version');
 
-    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.3.0', true);
-    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.3.0', true);
-    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], '1.3.0', true);
-    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.3.0', true);
-    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], '1.3.0', true);
+    wp_enqueue_style('gp-parent-style', get_template_directory_uri() . '/style.css', [], wp_get_theme('generatepress')->get('Version'));
+    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], $themeVersion);
+    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], $themeVersion);
+    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], $themeVersion);
+    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], $themeVersion);
+    wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], $themeVersion);
+    wp_enqueue_style('poradnik-portal-pro', get_stylesheet_directory_uri() . '/assets/css/portal-pro.css', ['poradnik-premium'], $themeVersion);
+    wp_enqueue_style('poradnik-cpt-enterprise', get_stylesheet_directory_uri() . '/assets/css/cpt-enterprise.css', ['poradnik-portal-pro'], $themeVersion);
+
+    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], $themeVersion, true);
+    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], $themeVersion, true);
+    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], $themeVersion, true);
+    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], $themeVersion, true);
+    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], $themeVersion, true);
 
     $moduleRoutes = function_exists('poradnik_get_module_routes') ? poradnik_get_module_routes() : [];
 
@@ -52,7 +54,8 @@ add_action('wp_enqueue_scripts', static function (): void {
 });
 
 add_action('admin_enqueue_scripts', static function (): void {
-    wp_enqueue_style('poradnik-admin', get_stylesheet_directory_uri() . '/assets/css/admin.css', [], '1.3.0');
+    $themeVersion = wp_get_theme(get_stylesheet())->get('Version');
+    wp_enqueue_style('poradnik-admin', get_stylesheet_directory_uri() . '/assets/css/admin.css', [], $themeVersion);
 });
 
 add_action('init', static function (): void {
