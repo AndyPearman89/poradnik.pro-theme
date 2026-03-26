@@ -34,23 +34,20 @@ add_action('wp_enqueue_scripts', static function (): void {
     wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.3.0', true);
     wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], '1.3.0', true);
 
+    $moduleRoutes = function_exists('poradnik_get_module_routes') ? poradnik_get_module_routes() : [];
+
     wp_localize_script('poradnik-ajax', 'poradnikAjax', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'restUrl' => esc_url_raw(rest_url('peartree/v1/')),
         'nonce' => wp_create_nonce('wp_rest'),
-        'modules' => [
-            'listings' => esc_url_raw(rest_url('peartree/v1/listings')),
-            'leads' => esc_url_raw(rest_url('peartree/v1/leads')),
-            'reviews' => esc_url_raw(rest_url('peartree/v1/reviews')),
-            'affiliate' => esc_url_raw(rest_url('peartree/v1/affiliate/status')),
-            'seo' => esc_url_raw(rest_url('peartree/v1/programmatic-seo/status')),
-            'claim' => esc_url_raw(rest_url('peartree/v1/claim')),
-            'weather' => esc_url_raw(rest_url('peartree/v1/weather?lat=50.0647&lng=19.9450')),
-            'map' => esc_url_raw(rest_url('peartree/v1/map/search?lat=50.0647&lng=19.9450')),
-            'booking' => esc_url_raw(rest_url('peartree/v1/bookings/status')),
-            'analytics' => esc_url_raw(rest_url('peartree/v1/analytics')),
-            'sponsored' => esc_url_raw(rest_url('peartree/v1/advertising/status')),
-        ],
+        'modules' => array_reduce(
+            $moduleRoutes,
+            static function (array $carry, array $route): array {
+                $carry[$route['key']] = esc_url_raw($route['url']);
+                return $carry;
+            },
+            []
+        ),
     ]);
 });
 
@@ -250,6 +247,79 @@ if (!function_exists('poradnik_get_post_type_label')) {
     }
 }
 
+if (!function_exists('poradnik_get_module_routes')) {
+    function poradnik_get_module_routes(): array
+    {
+        return [
+            ['name' => 'Listings', 'key' => 'listings', 'url' => rest_url('peartree/v1/listings')],
+            ['name' => 'Leads', 'key' => 'leads', 'url' => rest_url('peartree/v1/leads')],
+            ['name' => 'Reviews', 'key' => 'reviews', 'url' => rest_url('peartree/v1/reviews')],
+            ['name' => 'Affiliate', 'key' => 'affiliate', 'url' => rest_url('peartree/v1/affiliate/status')],
+            ['name' => 'SEO', 'key' => 'seo', 'url' => rest_url('peartree/v1/programmatic-seo/status')],
+            ['name' => 'Claim', 'key' => 'claim', 'url' => rest_url('peartree/v1/claim')],
+            ['name' => 'Weather', 'key' => 'weather', 'url' => rest_url('peartree/v1/weather?lat=50.0647&lng=19.9450')],
+            ['name' => 'Map', 'key' => 'map', 'url' => rest_url('peartree/v1/map/search?lat=50.0647&lng=19.9450')],
+            ['name' => 'Booking', 'key' => 'booking', 'url' => rest_url('peartree/v1/bookings/status')],
+            ['name' => 'Analytics', 'key' => 'analytics', 'url' => rest_url('peartree/v1/analytics')],
+            ['name' => 'Sponsored', 'key' => 'sponsored', 'url' => rest_url('peartree/v1/advertising/status')],
+        ];
+    }
+}
+
+if (!function_exists('poradnik_get_module_statuses')) {
+    function poradnik_get_module_statuses(bool $forceRefresh = false): array
+    {
+        $cacheKey = 'poradnik_module_statuses_v1';
+
+        if (!$forceRefresh) {
+            $cached = get_transient($cacheKey);
+            if (is_array($cached) && isset($cached['items'])) {
+                return $cached;
+            }
+        }
+
+        $items = [];
+        foreach (poradnik_get_module_routes() as $route) {
+            $response = wp_remote_get($route['url'], [
+                'timeout' => 3,
+                'redirection' => 2,
+            ]);
+
+            $statusCode = is_wp_error($response) ? 0 : (int) wp_remote_retrieve_response_code($response);
+            $isOnline = !is_wp_error($response) && $statusCode >= 200 && $statusCode < 400;
+
+            $items[$route['key']] = [
+                'name' => $route['name'],
+                'key' => $route['key'],
+                'url' => $route['url'],
+                'online' => $isOnline,
+                'status_code' => $statusCode,
+                'error' => is_wp_error($response) ? $response->get_error_message() : '',
+            ];
+        }
+
+        $statusData = [
+            'checked_at' => time(),
+            'items' => $items,
+        ];
+
+        set_transient($cacheKey, $statusData, 5 * MINUTE_IN_SECONDS);
+
+        return $statusData;
+    }
+}
+
+if (!function_exists('poradnik_get_module_status_badge')) {
+    function poradnik_get_module_status_badge(array $item): string
+    {
+        $isOnline = !empty($item['online']);
+        $className = $isOnline ? 'is-online' : 'is-offline';
+        $label = $isOnline ? __('ONLINE', 'generatepress-child-poradnik') : __('OFFLINE', 'generatepress-child-poradnik');
+
+        return '<span class="poradnik-status-badge ' . esc_attr($className) . '">' . esc_html($label) . '</span>';
+    }
+}
+
 add_action('wp_head', static function (): void {
     if (!is_front_page()) {
         return;
@@ -378,27 +448,56 @@ add_action('wp_dashboard_setup', static function (): void {
         'poradnik_module_status_widget',
         __('Poradnik.pro — Status modułów', 'generatepress-child-poradnik'),
         static function (): void {
-            $routes = [
-                'Listings' => rest_url('peartree/v1/listings'),
-                'Leads' => rest_url('peartree/v1/leads'),
-                'Reviews' => rest_url('peartree/v1/reviews'),
-                'SEO' => rest_url('peartree/v1/programmatic-seo/status'),
-                'Claim' => rest_url('peartree/v1/claim'),
-                'Weather' => rest_url('peartree/v1/weather?lat=50.0647&lng=19.9450'),
-                'Map' => rest_url('peartree/v1/map/search?lat=50.0647&lng=19.9450'),
-                'Booking' => rest_url('peartree/v1/bookings/status'),
-            ];
+            $statusData = poradnik_get_module_statuses(false);
+            $refreshUrl = wp_nonce_url(
+                add_query_arg('poradnik_refresh_modules', '1', admin_url('index.php')),
+                'poradnik_refresh_modules'
+            );
 
             echo '<div class="poradnik-module-widget">';
+            if (isset($statusData['checked_at'])) {
+                echo '<p class="poradnik-module-widget__meta">' . sprintf(
+                    esc_html__('Ostatnia aktualizacja: %s', 'generatepress-child-poradnik'),
+                    esc_html(date_i18n('Y-m-d H:i:s', (int) $statusData['checked_at']))
+                ) . '</p>';
+            }
             echo '<ul>';
 
-            foreach ($routes as $name => $url) {
-                echo '<li><strong>' . esc_html($name) . '</strong><span>' . esc_html($url) . '</span></li>';
+            foreach ($statusData['items'] as $item) {
+                $codeText = $item['status_code'] > 0 ? 'HTTP ' . (int) $item['status_code'] : __('Brak odpowiedzi', 'generatepress-child-poradnik');
+                $errorText = !empty($item['error']) ? ' — ' . $item['error'] : '';
+
+                echo '<li>';
+                echo '<div class="poradnik-module-widget__left"><strong>' . esc_html($item['name']) . '</strong>' . poradnik_get_module_status_badge($item) . '</div>';
+                echo '<span title="' . esc_attr($item['url']) . '">' . esc_html($codeText . $errorText) . '</span>';
+                echo '</li>';
             }
 
             echo '</ul>';
-            echo '<p><a class="button button-primary" href="' . esc_url(admin_url('post-new.php?post_type=poradnik')) . '">' . esc_html__('Dodaj poradnik', 'generatepress-child-poradnik') . '</a></p>';
+            echo '<p class="poradnik-module-widget__actions">';
+            echo '<a class="button" href="' . esc_url($refreshUrl) . '">' . esc_html__('Odśwież statusy', 'generatepress-child-poradnik') . '</a> ';
+            echo '<a class="button button-primary" href="' . esc_url(admin_url('post-new.php?post_type=poradnik')) . '">' . esc_html__('Dodaj poradnik', 'generatepress-child-poradnik') . '</a>';
+            echo '</p>';
             echo '</div>';
         }
     );
+});
+
+add_action('admin_init', static function (): void {
+    if (!is_admin() || !isset($_GET['poradnik_refresh_modules'])) {
+        return;
+    }
+
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'poradnik_refresh_modules')) {
+        return;
+    }
+
+    delete_transient('poradnik_module_statuses_v1');
+    poradnik_get_module_statuses(true);
+    wp_safe_redirect(admin_url('index.php'));
+    exit;
 });

@@ -4,6 +4,12 @@
 #dashboard-widgets-wrap .postbox#poradnik_module_status_widget .hndle{background:linear-gradient(90deg,#1a73e8,#3b82f6);color:#fff}
 .poradnik-module-widget ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:8px}
 .poradnik-module-widget li{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0}
+.poradnik-module-widget__left{display:flex;align-items:center;gap:8px}
 .poradnik-module-widget li span{color:#475569;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+.poradnik-module-widget__meta{margin:0 0 8px;color:#475569;font-size:12px}
+.poradnik-module-widget__actions{display:flex;gap:8px;flex-wrap:wrap}
+.poradnik-status-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.3px}
+.poradnik-status-badge.is-online{background:color-mix(in srgb, var(--accent) 16%, #fff);color:var(--text)}
+.poradnik-status-badge.is-offline{background:color-mix(in srgb, var(--primary) 16%, #fff);color:var(--text)}
 .poradnik-module-widget .button-primary{background:#1d4ed8;border-color:#1e40af}
 #poradnik_premium_meta .inside{padding:12px}
