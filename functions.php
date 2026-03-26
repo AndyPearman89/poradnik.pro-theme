@@ -31,26 +31,37 @@ add_action('wp_enqueue_scripts', static function (): void {
     wp_enqueue_style('poradnik-cpt-enterprise', get_stylesheet_directory_uri() . '/assets/css/cpt-enterprise.css', ['poradnik-portal-pro'], $themeVersion);
 
     wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], $themeVersion, true);
-    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], $themeVersion, true);
-    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], $themeVersion, true);
-    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], $themeVersion, true);
-    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], $themeVersion, true);
+
+    if (is_front_page() || is_search()) {
+        wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], $themeVersion, true);
+    }
+
+    if (is_front_page() || is_page(['specjalisci', 'dashboard', 'specjalista-dashboard', 'advertiser-dashboard'])) {
+        wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], $themeVersion, true);
+        wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], $themeVersion, true);
+    }
+
+    if (is_page(['login', 'register']) || is_front_page()) {
+        wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], $themeVersion, true);
+    }
 
     $moduleRoutes = function_exists('poradnik_get_module_routes') ? poradnik_get_module_routes() : [];
 
-    wp_localize_script('poradnik-ajax', 'poradnikAjax', [
-        'ajaxUrl' => admin_url('admin-ajax.php'),
-        'restUrl' => esc_url_raw(rest_url('peartree/v1/')),
-        'nonce' => wp_create_nonce('wp_rest'),
-        'modules' => array_reduce(
-            $moduleRoutes,
-            static function (array $carry, array $route): array {
-                $carry[$route['key']] = esc_url_raw($route['url']);
-                return $carry;
-            },
-            []
-        ),
-    ]);
+    if (wp_script_is('poradnik-ajax', 'enqueued')) {
+        wp_localize_script('poradnik-ajax', 'poradnikAjax', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'restUrl' => esc_url_raw(rest_url('peartree/v1/')),
+            'nonce' => wp_create_nonce('wp_rest'),
+            'modules' => array_reduce(
+                $moduleRoutes,
+                static function (array $carry, array $route): array {
+                    $carry[$route['key']] = esc_url_raw($route['url']);
+                    return $carry;
+                },
+                []
+            ),
+        ]);
+    }
 });
 
 add_action('admin_enqueue_scripts', static function (): void {
