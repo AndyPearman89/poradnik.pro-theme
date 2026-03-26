@@ -20,17 +20,17 @@ add_action('after_setup_theme', static function (): void {
 
 add_action('wp_enqueue_scripts', static function (): void {
     wp_enqueue_style('gp-parent-style', get_template_directory_uri() . '/style.css', [], wp_get_theme('generatepress')->get('Version'));
-    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], '1.1.0');
-    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], '1.1.0');
-    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], '1.1.0');
-    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.1.0');
-    wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], '1.1.0');
+    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], '1.2.0');
+    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], '1.2.0');
+    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], '1.2.0');
+    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.2.0');
+    wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], '1.2.0');
 
-    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.1.0', true);
-    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.1.0', true);
-    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], '1.1.0', true);
-    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.1.0', true);
-    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], '1.1.0', true);
+    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.2.0', true);
+    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.2.0', true);
+    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], '1.2.0', true);
+    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.2.0', true);
+    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], '1.2.0', true);
 
     wp_localize_script('poradnik-ajax', 'poradnikAjax', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -146,6 +146,41 @@ if (!function_exists('poradnik_render_premium_content')) {
         }
 
         return '<div class="premium-lockdown"><p>🔒 Ta zawartość jest dostępna dla Użytkowników Premium</p>' . get_template_part('template-parts/premium/paywall-cta') . '</div>';
+    }
+}
+
+/**
+ * Generate Breadcrumbs (v1.2.0+)
+ */
+if (!function_exists('poradnik_breadcrumbs')) {
+    function poradnik_breadcrumbs(): array
+    {
+        $crumbs = [];
+
+        if (is_home() || is_front_page()) {
+            $crumbs[] = ['title' => 'Strona główna', 'url' => home_url()];
+        } elseif (is_page() || is_single()) {
+            $crumbs[] = ['title' => 'Strona główna', 'url' => home_url()];
+
+            if (is_single()) {
+                $post_type = get_post_type();
+                $post_type_obj = get_post_type_object($post_type);
+                if ($post_type_obj) {
+                    $crumbs[] = ['title' => $post_type_obj->label, 'url' => get_post_type_archive_link($post_type)];
+                }
+                $crumbs[] = ['title' => get_the_title(), 'url' => ''];
+            } else {
+                $crumbs[] = ['title' => get_the_title(), 'url' => ''];
+            }
+        } elseif (is_category() || is_tax()) {
+            $crumbs[] = ['title' => 'Strona główna', 'url' => home_url()];
+            $crumbs[] = ['title' => single_term_title('', false), 'url' => ''];
+        } elseif (is_archive()) {
+            $crumbs[] = ['title' => 'Strona główna', 'url' => home_url()];
+            $crumbs[] = ['title' => post_type_archive_title('', false) ?: 'Archiwum', 'url' => ''];
+        }
+
+        return apply_filters('poradnik_breadcrumbs', $crumbs);
     }
 }
 
