@@ -92,6 +92,11 @@ add_action('init', static function (): void {
         'public' => true,
         'hierarchical' => false,
         'show_in_rest' => true,
+        'rewrite' => [
+            'slug' => 'temat',
+            'with_front' => false,
+        ],
+        'query_var' => 'temat',
     ]);
 
     register_taxonomy('miasto', ['specjalista', 'pytanie'], [
