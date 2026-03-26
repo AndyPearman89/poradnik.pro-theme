@@ -20,15 +20,17 @@ add_action('after_setup_theme', static function (): void {
 
 add_action('wp_enqueue_scripts', static function (): void {
     wp_enqueue_style('gp-parent-style', get_template_directory_uri() . '/style.css', [], wp_get_theme('generatepress')->get('Version'));
-    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], '1.0.0');
-    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], '1.0.0');
-    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], '1.0.0');
-    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.0.0');
+    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], '1.1.0');
+    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], '1.1.0');
+    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], '1.1.0');
+    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.1.0');
+    wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], '1.1.0');
 
-    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.0.0', true);
-    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.0.0', true);
-    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], '1.0.0', true);
-    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.0.0', true);
+    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.1.0', true);
+    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.1.0', true);
+    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], '1.1.0', true);
+    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.1.0', true);
+    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], '1.1.0', true);
 
     wp_localize_script('poradnik-ajax', 'poradnikAjax', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -114,3 +116,43 @@ add_action('wp_head', static function (): void {
     get_template_part('template-parts/schema/schema', 'faq');
     get_template_part('template-parts/schema/schema', 'breadcrumb');
 }, 20);
+
+/**
+ * Premium Feature Functions (v1.1.0+)
+ */
+if (!function_exists('poradnik_is_user_premium')) {
+    function poradnik_is_user_premium(): bool
+    {
+        return is_user_logged_in() && current_user_can('editor') || current_user_can('administrator');
+    }
+}
+
+if (!function_exists('poradnik_get_premium_badge')) {
+    function poradnik_get_premium_badge(): string
+    {
+        return '<span class="premium-badge" title="Zawartość Premium"><i class="icon-star"></i> Premium</span>';
+    }
+}
+
+if (!function_exists('poradnik_render_premium_content')) {
+    function poradnik_render_premium_content(string $content, bool $is_premium = false): string
+    {
+        if (!$is_premium) {
+            return $content;
+        }
+
+        if (poradnik_is_user_premium()) {
+            return $content;
+        }
+
+        return '<div class="premium-lockdown"><p>🔒 Ta zawartość jest dostępna dla Użytkowników Premium</p>' . get_template_part('template-parts/premium/paywall-cta') . '</div>';
+    }
+}
+
+add_filter('the_content', static function (string $content): string {
+    if (is_singular(['poradnik', 'ranking', 'recenzja', 'produkt'])) {
+        $is_premium = get_post_meta(get_the_ID(), '_poradnik_is_premium', true);
+        return poradnik_render_premium_content($content, (bool)$is_premium);
+    }
+    return $content;
+});
