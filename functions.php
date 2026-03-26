@@ -42,14 +42,14 @@ add_action('wp_enqueue_scripts', static function (): void {
             'listings' => esc_url_raw(rest_url('peartree/v1/listings')),
             'leads' => esc_url_raw(rest_url('peartree/v1/leads')),
             'reviews' => esc_url_raw(rest_url('peartree/v1/reviews')),
-            'affiliate' => esc_url_raw(rest_url('peartree/v1/affiliate')),
-            'seo' => esc_url_raw(rest_url('peartree/v1/seo')),
+            'affiliate' => esc_url_raw(rest_url('peartree/v1/affiliate/status')),
+            'seo' => esc_url_raw(rest_url('peartree/v1/programmatic-seo/status')),
             'claim' => esc_url_raw(rest_url('peartree/v1/claim')),
-            'weather' => esc_url_raw(rest_url('peartree/v1/weather')),
-            'map' => esc_url_raw(rest_url('peartree/v1/map')),
-            'booking' => esc_url_raw(rest_url('peartree/v1/bookings')),
+            'weather' => esc_url_raw(rest_url('peartree/v1/weather?lat=50.0647&lng=19.9450')),
+            'map' => esc_url_raw(rest_url('peartree/v1/map/search?lat=50.0647&lng=19.9450')),
+            'booking' => esc_url_raw(rest_url('peartree/v1/bookings/status')),
             'analytics' => esc_url_raw(rest_url('peartree/v1/analytics')),
-            'sponsored' => esc_url_raw(rest_url('peartree/v1/advertising')),
+            'sponsored' => esc_url_raw(rest_url('peartree/v1/advertising/status')),
         ],
     ]);
 });
@@ -248,11 +248,11 @@ add_action('wp_dashboard_setup', static function (): void {
                 'Listings' => rest_url('peartree/v1/listings'),
                 'Leads' => rest_url('peartree/v1/leads'),
                 'Reviews' => rest_url('peartree/v1/reviews'),
-                'SEO' => rest_url('peartree/v1/seo'),
+                'SEO' => rest_url('peartree/v1/programmatic-seo/status'),
                 'Claim' => rest_url('peartree/v1/claim'),
-                'Weather' => rest_url('peartree/v1/weather'),
-                'Map' => rest_url('peartree/v1/map'),
-                'Booking' => rest_url('peartree/v1/bookings'),
+                'Weather' => rest_url('peartree/v1/weather?lat=50.0647&lng=19.9450'),
+                'Map' => rest_url('peartree/v1/map/search?lat=50.0647&lng=19.9450'),
+                'Booking' => rest_url('peartree/v1/bookings/status'),
             ];
 
             echo '<div class="poradnik-module-widget">';

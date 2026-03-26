@@ -9,13 +9,13 @@
       <?php
       $modules = [
           ['name' => 'Listings Engine', 'desc' => 'Katalog i filtry treści', 'url' => home_url('/poradnik/')],
-          ['name' => 'Leads Engine', 'desc' => 'Pozyskiwanie i routing leadów', 'url' => home_url('/kontakt/')],
-          ['name' => 'Claim Engine', 'desc' => 'Weryfikacja i claim treści', 'url' => home_url('/regulamin/')],
-          ['name' => 'Weather Engine', 'desc' => 'Dane pogodowe i alerty', 'url' => home_url('/pogoda/')],
-          ['name' => 'Map Engine', 'desc' => 'Widok mapowy i lokalizacje', 'url' => home_url('/mapa/')],
-          ['name' => 'Booking Engine', 'desc' => 'Obsługa rezerwacji premium', 'url' => home_url('/checkout/')],
+          ['name' => 'Leads Engine', 'desc' => 'Pozyskiwanie i routing leadów', 'url' => home_url('/specjalista/')],
+          ['name' => 'Claim Engine', 'desc' => 'Weryfikacja i claim treści', 'url' => home_url('/pytanie/')],
+          ['name' => 'Weather Engine', 'desc' => 'Dane pogodowe i alerty', 'url' => home_url('/poradnik/')],
+          ['name' => 'Map Engine', 'desc' => 'Widok mapowy i lokalizacje', 'url' => home_url('/specjalista/')],
+          ['name' => 'Booking Engine', 'desc' => 'Obsługa rezerwacji premium', 'url' => home_url('/produkt/')],
           ['name' => 'Sponsored / Ads', 'desc' => 'Monetyzacja powierzchni', 'url' => home_url('/reklama/')],
-          ['name' => 'Programmatic SEO', 'desc' => 'Skalowanie landing pages', 'url' => home_url('/seo/')],
+          ['name' => 'Programmatic SEO', 'desc' => 'Skalowanie landing pages', 'url' => home_url('/ranking/')],
       ];
 
       foreach ($modules as $module) :
