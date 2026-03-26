@@ -26,6 +26,10 @@ build/
 *.css.map
 *.scss.map
 
+# Artifacts / release ZIPs
+artifacts/
+*.zip
+
 # OS
 .DS_Store
 Thumbs.db
