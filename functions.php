@@ -26,6 +26,7 @@ add_action('wp_enqueue_scripts', static function (): void {
     wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.3.0');
     wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], '1.3.0');
     wp_enqueue_style('poradnik-portal-pro', get_stylesheet_directory_uri() . '/assets/css/portal-pro.css', ['poradnik-premium'], '1.3.0');
+    wp_enqueue_style('poradnik-cpt-enterprise', get_stylesheet_directory_uri() . '/assets/css/cpt-enterprise.css', ['poradnik-portal-pro'], '1.3.0');
 
     wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.3.0', true);
     wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.3.0', true);
