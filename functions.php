@@ -20,17 +20,18 @@ add_action('after_setup_theme', static function (): void {
 
 add_action('wp_enqueue_scripts', static function (): void {
     wp_enqueue_style('gp-parent-style', get_template_directory_uri() . '/style.css', [], wp_get_theme('generatepress')->get('Version'));
-    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], '1.2.0');
-    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], '1.2.0');
-    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], '1.2.0');
-    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.2.0');
-    wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], '1.2.0');
+    wp_enqueue_style('poradnik-main', get_stylesheet_directory_uri() . '/assets/css/main.css', ['gp-parent-style'], '1.3.0');
+    wp_enqueue_style('poradnik-layout', get_stylesheet_directory_uri() . '/assets/css/layout.css', ['poradnik-main'], '1.3.0');
+    wp_enqueue_style('poradnik-components', get_stylesheet_directory_uri() . '/assets/css/components.css', ['poradnik-layout'], '1.3.0');
+    wp_enqueue_style('poradnik-responsive', get_stylesheet_directory_uri() . '/assets/css/responsive.css', ['poradnik-components'], '1.3.0');
+    wp_enqueue_style('poradnik-premium', get_stylesheet_directory_uri() . '/assets/css/premium.css', ['poradnik-responsive'], '1.3.0');
+    wp_enqueue_style('poradnik-portal-pro', get_stylesheet_directory_uri() . '/assets/css/portal-pro.css', ['poradnik-premium'], '1.3.0');
 
-    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.2.0', true);
-    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.2.0', true);
-    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], '1.2.0', true);
-    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.2.0', true);
-    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], '1.2.0', true);
+    wp_enqueue_script('poradnik-main', get_stylesheet_directory_uri() . '/assets/js/main.js', [], '1.3.0', true);
+    wp_enqueue_script('poradnik-search', get_stylesheet_directory_uri() . '/assets/js/search.js', ['poradnik-main'], '1.3.0', true);
+    wp_enqueue_script('poradnik-ajax', get_stylesheet_directory_uri() . '/assets/js/ajax.js', ['poradnik-main'], '1.3.0', true);
+    wp_enqueue_script('poradnik-filters', get_stylesheet_directory_uri() . '/assets/js/filters.js', ['poradnik-main'], '1.3.0', true);
+    wp_enqueue_script('poradnik-premium', get_stylesheet_directory_uri() . '/assets/js/premium.js', ['poradnik-main'], '1.3.0', true);
 
     wp_localize_script('poradnik-ajax', 'poradnikAjax', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -43,8 +44,17 @@ add_action('wp_enqueue_scripts', static function (): void {
             'affiliate' => esc_url_raw(rest_url('peartree/v1/affiliate')),
             'seo' => esc_url_raw(rest_url('peartree/v1/seo')),
             'claim' => esc_url_raw(rest_url('peartree/v1/claim')),
+            'weather' => esc_url_raw(rest_url('peartree/v1/weather')),
+            'map' => esc_url_raw(rest_url('peartree/v1/map')),
+            'booking' => esc_url_raw(rest_url('peartree/v1/bookings')),
+            'analytics' => esc_url_raw(rest_url('peartree/v1/analytics')),
+            'sponsored' => esc_url_raw(rest_url('peartree/v1/advertising')),
         ],
     ]);
+});
+
+add_action('admin_enqueue_scripts', static function (): void {
+    wp_enqueue_style('poradnik-admin', get_stylesheet_directory_uri() . '/assets/css/admin.css', [], '1.3.0');
 });
 
 add_action('init', static function (): void {
@@ -190,4 +200,70 @@ add_filter('the_content', static function (string $content): string {
         return poradnik_render_premium_content($content, (bool)$is_premium);
     }
     return $content;
+});
+
+add_action('add_meta_boxes', static function (): void {
+    $screens = ['poradnik', 'ranking', 'recenzja', 'produkt'];
+
+    foreach ($screens as $screen) {
+        add_meta_box(
+            'poradnik_premium_meta',
+            __('Ustawienia Premium', 'generatepress-child-poradnik'),
+            static function (\WP_Post $post): void {
+                wp_nonce_field('poradnik_premium_meta', 'poradnik_premium_meta_nonce');
+                $enabled = (bool) get_post_meta($post->ID, '_poradnik_is_premium', true);
+                echo '<label><input type="checkbox" name="poradnik_is_premium" value="1" ' . checked($enabled, true, false) . ' /> ' . esc_html__('Treść premium', 'generatepress-child-poradnik') . '</label>';
+            },
+            $screen,
+            'side',
+            'high'
+        );
+    }
+});
+
+add_action('save_post', static function (int $postId): void {
+    if (!isset($_POST['poradnik_premium_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['poradnik_premium_meta_nonce'])), 'poradnik_premium_meta')) {
+        return;
+    }
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    if (!current_user_can('edit_post', $postId)) {
+        return;
+    }
+
+    $isPremium = isset($_POST['poradnik_is_premium']) && (int) $_POST['poradnik_is_premium'] === 1;
+    update_post_meta($postId, '_poradnik_is_premium', $isPremium ? '1' : '0');
+});
+
+add_action('wp_dashboard_setup', static function (): void {
+    wp_add_dashboard_widget(
+        'poradnik_module_status_widget',
+        __('Poradnik.pro — Status modułów', 'generatepress-child-poradnik'),
+        static function (): void {
+            $routes = [
+                'Listings' => rest_url('peartree/v1/listings'),
+                'Leads' => rest_url('peartree/v1/leads'),
+                'Reviews' => rest_url('peartree/v1/reviews'),
+                'SEO' => rest_url('peartree/v1/seo'),
+                'Claim' => rest_url('peartree/v1/claim'),
+                'Weather' => rest_url('peartree/v1/weather'),
+                'Map' => rest_url('peartree/v1/map'),
+                'Booking' => rest_url('peartree/v1/bookings'),
+            ];
+
+            echo '<div class="poradnik-module-widget">';
+            echo '<ul>';
+
+            foreach ($routes as $name => $url) {
+                echo '<li><strong>' . esc_html($name) . '</strong><span>' . esc_html($url) . '</span></li>';
+            }
+
+            echo '</ul>';
+            echo '<p><a class="button button-primary" href="' . esc_url(admin_url('post-new.php?post_type=poradnik')) . '">' . esc_html__('Dodaj poradnik', 'generatepress-child-poradnik') . '</a></p>';
+            echo '</div>';
+        }
+    );
 });

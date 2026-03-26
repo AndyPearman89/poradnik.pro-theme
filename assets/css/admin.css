@@ -1,0 +1,9 @@
+.toplevel_page_peartree-dashboard .wrap h1,
+.wp-admin .wrap h1{font-weight:700;letter-spacing:.2px}
+#dashboard-widgets-wrap .postbox#poradnik_module_status_widget{border:1px solid #dbeafe;box-shadow:0 8px 20px rgba(15,23,42,.06)}
+#dashboard-widgets-wrap .postbox#poradnik_module_status_widget .hndle{background:linear-gradient(90deg,#1a73e8,#3b82f6);color:#fff}
+.poradnik-module-widget ul{margin:8px 0 12px;padding:0;list-style:none;display:grid;gap:8px}
+.poradnik-module-widget li{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0}
+.poradnik-module-widget li span{color:#475569;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+.poradnik-module-widget .button-primary{background:#1d4ed8;border-color:#1e40af}
+#poradnik_premium_meta .inside{padding:12px}

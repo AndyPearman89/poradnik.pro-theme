@@ -3,6 +3,7 @@ get_header();
 
 $sections = [
     'hero',
+    'module-hub',
     'popular-guides',
     'rankings',
     'experts',
