@@ -20,3 +20,28 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;backgr
 .footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:40px 0}
 .footer-grid ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
 .footer-grid a{text-decoration:none;color:var(--muted)}
+
+.portal-hero{position:relative;overflow:hidden}
+.portal-hero::before{content:"";position:absolute;inset:-30% 45% auto -10%;height:320px;background:radial-gradient(circle at center,color-mix(in srgb,var(--primary) 35%,transparent),transparent 70%);pointer-events:none}
+.portal-hero__grid{display:grid;grid-template-columns:1.25fr .75fr;gap:20px;align-items:stretch}
+.portal-hero__title{font-size:clamp(30px,4vw,52px);line-height:1.05;margin:0 0 14px}
+.portal-hero__panel{background:linear-gradient(165deg,color-mix(in srgb,var(--surface-2) 82%,#000),var(--surface));position:relative}
+.portal-hero__panel::after{content:"";position:absolute;inset:0;border-radius:inherit;border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));pointer-events:none}
+.portal-hero__list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:10px}
+.portal-hero__list a{text-decoration:none;color:var(--text);display:block;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:color-mix(in srgb,var(--surface-2) 85%,transparent)}
+
+.trust-strip{padding-top:18px;padding-bottom:18px}
+.trust-strip__grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.trust-item{background:linear-gradient(160deg,color-mix(in srgb,var(--surface) 90%,#000),var(--surface-2));border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.trust-item strong{font-size:24px;line-height:1;color:var(--text)}
+.trust-item span{color:var(--muted);font-size:13px}
+.trust-item--cta{justify-content:center;align-items:flex-start}
+
+.card-glossy{background:linear-gradient(165deg,color-mix(in srgb,var(--surface) 90%,#000),var(--surface-2));position:relative}
+.card-glossy::before{content:"";position:absolute;left:12px;right:12px;top:8px;height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 60%,transparent),transparent)}
+.card-glossy h3 a{text-decoration:none;color:var(--text)}
+.card-glossy:hover{transform:translateY(-2px);transition:transform .2s ease,border-color .2s ease;border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}
+
+@media (max-width: 960px){
+	.portal-hero__grid,.trust-strip__grid{grid-template-columns:1fr}
+}

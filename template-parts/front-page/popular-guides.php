@@ -3,23 +3,35 @@
     <?php poradnik_section_title('Popularne poradniki'); ?>
     <div class="grid grid-4">
       <?php
-      $guides = [
-        ['title' => 'Jak naprawić pralkę, która nie odprowadza wody?', 'category' => 'Dom i ogród', 'desc' => 'Diagnoza krok po kroku: filtr, pompa, odpływ i reset serwisowy.', 'time' => '7 min czytania', 'url' => home_url('/jak-naprawic/')],
-        ['title' => 'Ile kosztuje wymiana instalacji elektrycznej?', 'category' => 'Elektryka', 'desc' => 'Przedziały cenowe, czynniki kosztu i checklista przed wyceną.', 'time' => '8 min czytania', 'url' => home_url('/ile-kosztuje/')],
-        ['title' => 'Jak wybrać hydraulika bez przepłacania?', 'category' => 'Hydraulika', 'desc' => 'Porównanie ofert, standard SLA i sygnały ostrzegawcze.', 'time' => '6 min czytania', 'url' => home_url('/hydraulika/')],
-        ['title' => 'Ranking pieców gazowych 2026', 'category' => 'Ranking', 'desc' => 'Zestawienie modeli, koszty eksploatacji i trwałość podzespołów.', 'time' => '9 min czytania', 'url' => home_url('/ranking/')],
-      ];
+      $guidesQuery = new WP_Query([
+          'post_type' => 'poradnik',
+          'post_status' => 'publish',
+          'posts_per_page' => 4,
+          'orderby' => 'date',
+          'order' => 'DESC',
+      ]);
 
-      foreach ($guides as $guide) :
+      if ($guidesQuery->have_posts()) :
+          while ($guidesQuery->have_posts()) : $guidesQuery->the_post();
       ?>
-        <article class="card">
-          <p class="meta"><?php echo esc_html($guide['category']); ?></p>
-          <h3><?php echo esc_html($guide['title']); ?></h3>
-          <p><?php echo esc_html($guide['desc']); ?></p>
-          <div class="meta"><?php echo esc_html($guide['time']); ?></div>
-          <a class="btn" href="<?php echo esc_url($guide['url']); ?>">Czytaj poradnik</a>
+          <article class="card card-glossy">
+            <p class="meta"><?php echo esc_html(poradnik_get_post_type_label((int) get_the_ID())); ?></p>
+            <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+            <p><?php echo esc_html(wp_trim_words(get_the_excerpt() ?: wp_strip_all_tags((string) get_the_content()), 18)); ?></p>
+            <div class="meta"><?php echo esc_html(get_the_date('j F Y')); ?></div>
+            <a class="btn" href="<?php the_permalink(); ?>"><?php esc_html_e('Czytaj poradnik', 'generatepress-child-poradnik'); ?></a>
+          </article>
+      <?php
+          endwhile;
+          wp_reset_postdata();
+      else :
+      ?>
+        <article class="card card-glossy">
+          <h3><?php esc_html_e('Brak poradników', 'generatepress-child-poradnik'); ?></h3>
+          <p><?php esc_html_e('Dodaj pierwsze wpisy typu Poradnik, aby zasilić sekcję.', 'generatepress-child-poradnik'); ?></p>
+          <a class="btn" href="<?php echo esc_url(home_url('/poradnik/')); ?>"><?php esc_html_e('Przejdź do archiwum', 'generatepress-child-poradnik'); ?></a>
         </article>
-      <?php endforeach; ?>
+      <?php endif; ?>
     </div>
   </div>
 </section>

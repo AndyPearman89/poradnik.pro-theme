@@ -3,6 +3,7 @@ get_header();
 
 $sections = [
     'hero',
+    'trust-strip',
     'module-hub',
     'popular-guides',
     'rankings',

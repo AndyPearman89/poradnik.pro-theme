@@ -34,7 +34,7 @@
           ? esc_html__('API online', 'generatepress-child-poradnik')
           : esc_html__('API offline', 'generatepress-child-poradnik');
       ?>
-        <article class="module-card card">
+        <article class="module-card card card-glossy">
           <span class="module-status-badge <?php echo esc_attr($statusClass); ?>"><?php echo esc_html($statusLabel); ?></span>
           <h3><?php echo esc_html($module['name']); ?></h3>
           <p><?php echo esc_html($module['desc']); ?></p>
