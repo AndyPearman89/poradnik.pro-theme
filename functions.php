@@ -226,7 +226,7 @@ add_action('save_post', static function (int $postId): void {
         return;
     }
 
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+    if (function_exists('wp_doing_autosave') && wp_doing_autosave()) {
         return;
     }
 
