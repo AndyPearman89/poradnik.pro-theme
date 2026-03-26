@@ -85,6 +85,11 @@ add_action('init', static function (): void {
         'public' => true,
         'hierarchical' => true,
         'show_in_rest' => true,
+        'rewrite' => [
+            'slug' => 'kategorie',
+            'with_front' => false,
+        ],
+        'query_var' => 'kategorie',
     ]);
 
     register_taxonomy('tag', ['poradnik', 'ranking', 'recenzja', 'produkt', 'porownanie', 'pytanie'], [
@@ -93,10 +98,10 @@ add_action('init', static function (): void {
         'hierarchical' => false,
         'show_in_rest' => true,
         'rewrite' => [
-            'slug' => 'temat',
+            'slug' => 'tematy',
             'with_front' => false,
         ],
-        'query_var' => 'temat',
+        'query_var' => 'tematy',
     ]);
 
     register_taxonomy('miasto', ['specjalista', 'pytanie'], [
