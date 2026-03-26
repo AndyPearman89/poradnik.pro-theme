@@ -2,12 +2,23 @@
   <div class="container">
     <?php poradnik_section_title('Najnowsze poradniki'); ?>
     <div class="article-list">
-      <?php for ($i = 1; $i <= 10; $i++) : ?>
+      <?php
+      $latest = [
+        'Jak przygotować mieszkanie do sezonu grzewczego?',
+        'Cennik usług hydraulicznych 2026 — realne widełki',
+        '7 błędów przy wyborze elektryka do remontu',
+        'Najczęstsze awarie pralek i ich szybka diagnoza',
+        'Jak negocjować wycenę usługi bez utraty jakości',
+      ];
+
+      foreach ($latest as $articleTitle) :
+      ?>
         <article class="card">
-          <h3>Artykuł <?php echo (int) $i; ?></h3>
-          <p class="meta">Latest article list item</p>
+          <h3><?php echo esc_html($articleTitle); ?></h3>
+          <p class="meta">Nowy poradnik redakcyjny · aktualizacja: dziś</p>
+          <a class="btn" href="<?php echo esc_url(home_url('/poradniki/')); ?>">Czytaj</a>
         </article>
-      <?php endfor; ?>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>

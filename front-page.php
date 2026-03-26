@@ -11,6 +11,7 @@ $sections = [
     'latest',
     'seo-hub',
     'stats',
+    'premium-offer',
     'cta',
     'ads',
     'newsletter',

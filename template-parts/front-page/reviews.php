@@ -2,15 +2,23 @@
   <div class="container">
     <?php poradnik_section_title('Najlepsze recenzje produktów'); ?>
     <div class="cards-scroll">
-      <?php for ($i = 1; $i <= 6; $i++) : ?>
+      <?php
+      $reviews = [
+        ['title' => 'Kocioł kondensacyjny X200', 'rating' => '★ 4.8', 'pros' => 'Niskie zużycie gazu, stabilna praca zimą'],
+        ['title' => 'Zmywarka AquaSilent 8', 'rating' => '★ 4.7', 'pros' => 'Cicha praca, dobry serwis producenta'],
+        ['title' => 'Pompa ciepła HeatPro', 'rating' => '★ 4.9', 'pros' => 'Wysoka sprawność, niski koszt eksploatacji'],
+        ['title' => 'Odkurzacz przemysłowy MaxVac', 'rating' => '★ 4.6', 'pros' => 'Mocny silnik, trwała konstrukcja'],
+      ];
+
+      foreach ($reviews as $review) :
+      ?>
         <article class="card">
-          <div class="meta">Product image</div>
-          <h3>Produkt <?php echo (int) $i; ?></h3>
-          <div class="rating">★ 4.8</div>
-          <p class="meta">Zalety: cena, wydajność, trwałość</p>
-          <a class="btn" href="#">sprawdź cenę</a>
+          <h3><?php echo esc_html($review['title']); ?></h3>
+          <div class="rating"><?php echo esc_html($review['rating']); ?></div>
+          <p class="meta"><?php echo esc_html($review['pros']); ?></p>
+          <a class="btn" href="<?php echo esc_url(home_url('/recenzje/')); ?>">Sprawdź recenzję</a>
         </article>
-      <?php endfor; ?>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>

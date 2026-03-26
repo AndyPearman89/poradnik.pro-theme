@@ -18,3 +18,80 @@ Text Domain: generatepress-child-poradnik
   --radius-btn: 8px;
   --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
+
+.section {
+  padding: 3rem 0;
+}
+
+.container {
+  width: min(1120px, 92%);
+  margin: 0 auto;
+}
+
+.landing-hero {
+  background: var(--bg);
+  border-bottom: 1px solid color-mix(in srgb, var(--muted) 20%, transparent);
+}
+
+.meta {
+  color: var(--primary);
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.section-subtitle {
+  color: var(--muted);
+  max-width: 760px;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card {
+  background: var(--bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: 1.25rem;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: var(--radius-btn);
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-accent {
+  background: var(--accent);
+}
+
+.landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
