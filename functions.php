@@ -119,6 +119,11 @@ add_action('init', static function (): void {
     ]);
 });
 
+add_action('init', static function (): void {
+    add_rewrite_rule('^kategorie/([^/]+)/?$', 'index.php?taxonomy=kategoria&term=$matches[1]', 'top');
+    add_rewrite_rule('^tematy/([^/]+)/?$', 'index.php?taxonomy=tag&term=$matches[1]', 'top');
+}, 20);
+
 if (!function_exists('poradnik_section_title')) {
     function poradnik_section_title(string $title): void
     {
