@@ -131,6 +131,125 @@ if (!function_exists('poradnik_section_title')) {
     }
 }
 
+if (!function_exists('poradnik_get_taxonomy_archive_config')) {
+    function poradnik_get_taxonomy_archive_config(string $taxonomy): array
+    {
+        $configs = [
+            'kategoria' => [
+                'label' => __('Kategoria', 'generatepress-child-poradnik'),
+                'fallback_description' => __('Zbiór treści eksperckich powiązanych z tym tematem, od praktycznych poradników po rankingi i recenzje.', 'generatepress-child-poradnik'),
+                'empty_title' => __('Brak wpisów w tej kategorii', 'generatepress-child-poradnik'),
+                'empty_description' => __('W tej chwili nie ma jeszcze opublikowanych treści.', 'generatepress-child-poradnik'),
+                'cta_url' => home_url('/poradniki/'),
+                'cta_label' => __('Przejdź do poradników', 'generatepress-child-poradnik'),
+            ],
+            'tag' => [
+                'label' => __('Tag', 'generatepress-child-poradnik'),
+                'fallback_description' => __('Szybki przekrój artykułów, rankingów i materiałów produktowych związanych z tym konkretnym zagadnieniem.', 'generatepress-child-poradnik'),
+                'empty_title' => __('Brak wpisów dla tego tagu', 'generatepress-child-poradnik'),
+                'empty_description' => __('W tej chwili nie ma jeszcze opublikowanych treści.', 'generatepress-child-poradnik'),
+                'cta_url' => home_url('/poradniki/'),
+                'cta_label' => __('Przeglądaj poradniki', 'generatepress-child-poradnik'),
+            ],
+            'miasto' => [
+                'label' => __('Miasto', 'generatepress-child-poradnik'),
+                'fallback_description' => __('Specjaliści, usługi i lokalne treści przypisane do tej lokalizacji.', 'generatepress-child-poradnik'),
+                'empty_title' => __('Brak wpisów dla tej lokalizacji', 'generatepress-child-poradnik'),
+                'empty_description' => __('Spróbuj wybrać inne miasto lub wróć do katalogu.', 'generatepress-child-poradnik'),
+                'cta_url' => home_url('/specjalisci/'),
+                'cta_label' => __('Przejdź do specjalistów', 'generatepress-child-poradnik'),
+            ],
+            'usluga' => [
+                'label' => __('Usługa', 'generatepress-child-poradnik'),
+                'fallback_description' => __('Oferty, profile specjalistów i treści poradnikowe powiązane z wybraną usługą.', 'generatepress-child-poradnik'),
+                'empty_title' => __('Brak wpisów dla tej usługi', 'generatepress-child-poradnik'),
+                'empty_description' => __('Dodaj treści lub profile przypisane do tej usługi.', 'generatepress-child-poradnik'),
+                'cta_url' => home_url('/specjalisci/'),
+                'cta_label' => __('Zobacz specjalistów', 'generatepress-child-poradnik'),
+            ],
+        ];
+
+        return $configs[$taxonomy] ?? [
+            'label' => __('Archiwum', 'generatepress-child-poradnik'),
+            'fallback_description' => __('Przegląd treści przypisanych do wybranego terminu.', 'generatepress-child-poradnik'),
+            'empty_title' => __('Brak wpisów', 'generatepress-child-poradnik'),
+            'empty_description' => __('W tej chwili nie ma jeszcze opublikowanych treści.', 'generatepress-child-poradnik'),
+            'cta_url' => home_url('/'),
+            'cta_label' => __('Powrót na stronę główną', 'generatepress-child-poradnik'),
+        ];
+    }
+}
+
+if (!function_exists('poradnik_get_taxonomy_related_terms')) {
+    function poradnik_get_taxonomy_related_terms(
+        string $taxonomy,
+        int $currentTermId,
+        int $limit = 8,
+        int $parentId = 0
+    ): array {
+        $args = [
+            'taxonomy' => $taxonomy,
+            'hide_empty' => true,
+            'exclude' => [$currentTermId],
+            'number' => $limit,
+            'orderby' => 'count',
+            'order' => 'DESC',
+        ];
+
+        if ($parentId > 0) {
+            $args['parent'] = $parentId;
+        }
+
+        $terms = get_terms($args);
+
+        if ($parentId > 0 && (is_wp_error($terms) || empty($terms))) {
+            unset($args['parent']);
+            $terms = get_terms($args);
+        }
+
+        return is_wp_error($terms) ? [] : $terms;
+    }
+}
+
+if (!function_exists('poradnik_get_archive_post_type_labels')) {
+    function poradnik_get_archive_post_type_labels(): array
+    {
+        global $wp_query;
+
+        if (!isset($wp_query->posts) || !is_array($wp_query->posts)) {
+            return [];
+        }
+
+        $labels = [];
+
+        foreach ($wp_query->posts as $post) {
+            $postType = get_post_type($post);
+            if (!$postType) {
+                continue;
+            }
+
+            $postTypeObject = get_post_type_object($postType);
+            $labels[$postType] = $postTypeObject ? $postTypeObject->labels->singular_name : ucfirst($postType);
+        }
+
+        return array_values($labels);
+    }
+}
+
+if (!function_exists('poradnik_get_post_type_label')) {
+    function poradnik_get_post_type_label(int $postId): string
+    {
+        $postType = get_post_type($postId);
+        if (!$postType) {
+            return '';
+        }
+
+        $postTypeObject = get_post_type_object($postType);
+
+        return $postTypeObject ? (string) $postTypeObject->labels->singular_name : ucfirst($postType);
+    }
+}
+
 add_action('wp_head', static function (): void {
     if (!is_front_page()) {
         return;
